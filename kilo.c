@@ -30,6 +30,9 @@ void enable_raw_mode() {
     // IXON: transmission pause/resume keys
     // ICRNL: translate carriage return to newline on input 
   kilo_termios.c_iflag &= ~(IXON | ICRNL);
+  // sets c_oflag (output modes)
+    // OPOST: output processing
+  kilo_termios.c_oflag &= ~(OPOST);
   // sets c_lflag (local modes)
     // ECHO: echo
     // ICANON: canonical mode
