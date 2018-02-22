@@ -2,4 +2,4 @@
 
 Text based text editor in C
 
-Tutorial from http://viewsourcecode.org/snaptoken/kilo
+Tutorial from [kilo](http://viewsourcecode.org/snaptoken/kilo).
