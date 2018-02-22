@@ -30,10 +30,11 @@ void enable_raw_mode() {
     // ~IXON: disable transmission pause/resume keys
   kilo_termios.c_iflag &= ~(IXON);
   // sets c_lflag (local modes)
-    // ~ECHO: turn off echo
-    // ~ICANON turn off canonical mode
-    // ~ISIG: turn off signals (Ctrl-Z, Ctrl-C)
-  kilo_termios.c_lflag &= ~(ECHO | ICANON | ISIG);
+    // ECHO: echo
+    // ICANON: canonical mode
+    // ISIG: signals (Ctrl-Z, Ctrl-C)
+    // IEXTEN: implementation-defined input processing
+  kilo_termios.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
   // saves terminal attributes
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &kilo_termios);
 }
