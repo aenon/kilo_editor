@@ -27,8 +27,9 @@ void enable_raw_mode() {
   atexit(disable_raw_mode);
   struct termios kilo_termios = orig_termios;
   // sets c_iflag (input modes)
-    // ~IXON: disable transmission pause/resume keys
-  kilo_termios.c_iflag &= ~(IXON);
+    // IXON: transmission pause/resume keys
+    // ICRNL: translate carriage return to newline on input 
+  kilo_termios.c_iflag &= ~(IXON | ICRNL);
   // sets c_lflag (local modes)
     // ECHO: echo
     // ICANON: canonical mode
