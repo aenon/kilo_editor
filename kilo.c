@@ -21,15 +21,11 @@ void disable_raw_mode() {
 void enable_raw_mode() {
   // gets the current terminal attributes and saves in orig_termios
   tcgetattr(STDIN_FILENO, &orig_termios);
-
   // disables raw mode at exit to avoid having to reset the terminal
   atexit(disable_raw_mode);
-
   struct termios kilo_termios = orig_termios;
-
-  // sets local flag: turn off echo
-  kilo_termios.c_lflag &= ~(ECHO);
-
+  // sets local flag: turn off echo, turn off canonical mode
+  kilo_termios.c_lflag &= ~(ECHO | ICANON);
   // saves terminal attributes
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &kilo_termios);
 }
