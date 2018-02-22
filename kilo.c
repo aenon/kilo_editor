@@ -7,6 +7,7 @@
  * make && ./kilo
  */
 
+/*** includes ***/
 
 #include <unistd.h>
 #include <termios.h>
@@ -15,7 +16,11 @@
 #include <stdio.h>
 #include <errno.h>
 
+/*** data ***/
+
 struct termios orig_termios;
+
+/*** terminal ***/
 
 void die(const char *s) {
   perror(s);
@@ -60,6 +65,8 @@ void enable_raw_mode() {
     die("tcsetattr");
   }
 }
+
+/*** init ***/
 
 int main() {
   enable_raw_mode();
