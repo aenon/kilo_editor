@@ -25,6 +25,8 @@ void enable_raw_mode() {
   tcgetattr(STDIN_FILENO, &orig_termios);
   // disables raw mode at exit to avoid having to reset the terminal
   atexit(disable_raw_mode);
+
+
   struct termios kilo_termios = orig_termios;
   // sets c_iflag (input modes)
     // IXON: transmission pause/resume keys
@@ -40,6 +42,9 @@ void enable_raw_mode() {
     // ISIG: signals (Ctrl-Z, Ctrl-C)
     // IEXTEN: implementation-defined input processing
   kilo_termios.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
+  kilo_termios.c_cc[VMIN] = 0;
+  kilo_termios.c_cc[VTIME] = 1;
+
   // saves terminal attributes
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &kilo_termios);
 }
@@ -47,8 +52,9 @@ void enable_raw_mode() {
 int main() {
   enable_raw_mode();
 
-  char c;
-  while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q') {
+  while (1) {
+    char c = '\0';
+    read(STDIN_FILENO, &c, 1);
     if (iscntrl(c)) {
       // prints the ASCII code for control characters
       printf("%d\r\n", c);
@@ -57,6 +63,7 @@ int main() {
       // prints the ASCII code and the character itself
       printf("%d (%c)\r\n", c, c);
     }
+    if (c == 'q') break;
   }
   return 0;
 }
