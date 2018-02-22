@@ -10,22 +10,32 @@
 
 #include <unistd.h>
 #include <termios.h>
+#include <stdlib.h>
 
-void enableRawMode() {
-  struct termios kiloTerm;
+struct termios orig_termios;
 
-  // gets the current terminal attributes and saves in kiloTerm
-  tcgetattr(STDIN_FILENO, &kiloTerm);
+void disable_raw_mode() {
+  tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+}
+
+void enable_raw_mode() {
+  // gets the current terminal attributes and saves in orig_termios
+  tcgetattr(STDIN_FILENO, &orig_termios);
+
+  // disables raw mode at exit to avoid having to reset the terminal
+  atexit(disable_raw_mode);
+
+  struct termios kilo_termios = orig_termios;
 
   // sets local flag: turn off echo
-  kiloTerm.c_lflag &= ~(ECHO);
+  kilo_termios.c_lflag &= ~(ECHO);
 
   // saves terminal attributes
-  tcsetattr(STDIN_FILENO, TCSAFLUSH, &kiloTerm);
+  tcsetattr(STDIN_FILENO, TCSAFLUSH, &kilo_termios);
 }
 
 int main() {
-  enableRawMode();
+  enable_raw_mode();
 
   char c;
   while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q');
