@@ -13,16 +13,26 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <errno.h>
 
 struct termios orig_termios;
 
+void die(const char *s) {
+  perror(s);
+  exit(1);
+}
+
 void disable_raw_mode() {
-  tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1) {
+    die("tcsetattr");
+  }
 }
 
 void enable_raw_mode() {
   // gets the current terminal attributes and saves in orig_termios
-  tcgetattr(STDIN_FILENO, &orig_termios);
+  if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) {
+    die("tcgetattr");
+  }
   // disables raw mode at exit to avoid having to reset the terminal
   atexit(disable_raw_mode);
 
@@ -46,7 +56,9 @@ void enable_raw_mode() {
   kilo_termios.c_cc[VTIME] = 1;
 
   // saves terminal attributes
-  tcsetattr(STDIN_FILENO, TCSAFLUSH, &kilo_termios);
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &kilo_termios) == -1) {
+    die("tcsetattr");
+  }
 }
 
 int main() {
@@ -54,7 +66,9 @@ int main() {
 
   while (1) {
     char c = '\0';
-    read(STDIN_FILENO, &c, 1);
+    if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN) {
+      die("read");
+    }
     if (iscntrl(c)) {
       // prints the ASCII code for control characters
       printf("%d\r\n", c);
