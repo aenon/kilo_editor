@@ -19,10 +19,11 @@ void disableRawMode() {
 }
 
 void enableRawMode() {
-  // gets and changes terminal attributes to enable raw mode 
+  // gets and changes terminal attributes to enable raw mode and turn off
+  // canonical mode
   tcgetattr(STDIN_FILENO, &orig_termios);
   struct termios raw = orig_termios;
-  raw.c_lflag &= ~(ECHO);
+  raw.c_lflag &= ~(ECHO | ICANON);
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 
   // stdlib.h atexit will be called when the program exits
