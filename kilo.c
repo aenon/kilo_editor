@@ -40,6 +40,13 @@ void enableRawMode() {
   raw.c_oflag &= ~(OPOST);
   // legacy: sets the caracter size to 8 bits per byte
   raw.c_cflag |= (CS8);
+  // control characters
+  // VMIN: minimum number of bytes of input needed before read() can return
+  // VTIME: maximum amount of time to wait before read() returns
+  //   unit: 100 milliseconds
+  raw.c_cc[VMIN] = 0;
+  raw.c_cc[VTIME] = 1;
+
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 
   // stdlib.h atexit will be called when the program exits
@@ -49,15 +56,17 @@ void enableRawMode() {
 int main(void) {
   enableRawMode();
 
-  char c;
   // reads to c; press 'q' to exit
-  while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q') {
+  while (1) {
+    char c = '\0';
+    read(STDIN_FILENO, &c, 1);
     // ctype.h iscntrl tests if a character is a control character
     if (iscntrl(c)) {
       printf("%d\r\n", c);
     } else {
       printf("%d ('%c')\r\n", c, c);
     }
+    if (c == 'q') break;
   }
   return 0;
 }
