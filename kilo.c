@@ -34,10 +34,12 @@ void enableRawMode() {
   // ICRNL: carriage return new line. disables '\r' -> '\n' feature
   // IXON: input XON and XOFF, for software flow control
   // this is not needed nowadays
-  raw.c_iflag &= ~(ICRNL | IXON);
+  raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
   // terminal output flags
   // OPOST: post processing.
   raw.c_oflag &= ~(OPOST);
+  // legacy: sets the caracter size to 8 bits per byte
+  raw.c_cflag |= (CS8);
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 
   // stdlib.h atexit will be called when the program exits
