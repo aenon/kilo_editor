@@ -27,12 +27,17 @@ void enableRawMode() {
   // terminal local flags
   // ECHO: echo flag
   // ICANON: canonical mode flag
+  // IEXTEN: disabling IEXTEN will disable Ctrl-V
   // ISIG: SIGINT(Ctrl-C, terminate)/SIGTSTP(Ctrl-Z, suspend) flags.
-  raw.c_lflag &= ~(ECHO | ICANON | ISIG);
+  raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
   // terminal input flags
+  // ICRNL: carriage return new line. disables '\r' -> '\n' feature
   // IXON: input XON and XOFF, for software flow control
   // this is not needed nowadays
-  raw.c_iflag &= ~(IXON);
+  raw.c_iflag &= ~(ICRNL | IXON);
+  // terminal output flags
+  // OPOST: post processing.
+  raw.c_oflag &= ~(OPOST);
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 
   // stdlib.h atexit will be called when the program exits
