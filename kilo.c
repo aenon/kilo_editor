@@ -25,7 +25,10 @@ void enableRawMode() {
   // canonical mode
   tcgetattr(STDIN_FILENO, &orig_termios);
   struct termios raw = orig_termios;
-  raw.c_lflag &= ~(ECHO | ICANON);
+  // ECHO: echo flag
+  // ICANON: canonical mode flag
+  // ISIG: SIGINT(Ctrl-C, terminate)/SIGTSTP(Ctrl-Z, suspend) flags.
+  raw.c_lflag &= ~(ECHO | ICANON | ISIG);
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 
   // stdlib.h atexit will be called when the program exits
