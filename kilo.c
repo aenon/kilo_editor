@@ -12,17 +12,27 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <errno.h>
 
 struct termios orig_termios;
 
+void die(const char *s) {
+  // stdio.h peeor prints the error
+  perror(s);
+  // stdlib.h exit
+  exit(1);
+}
+
 void disableRawMode() {
   // resets terminal attibutes to disable raw mode
-  tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1)
+    die("Failed at tcsetattr");
 }
 
 void enableRawMode() {
   // gets and changes terminal attributes
-  tcgetattr(STDIN_FILENO, &orig_termios);
+  if (tcgetattr(STDIN_FILENO, &orig_termios) == -1)
+    die("Failed at tcgetattr");
   struct termios raw = orig_termios;
   // terminal local flags
   // ECHO: echo flag
@@ -47,7 +57,8 @@ void enableRawMode() {
   raw.c_cc[VMIN] = 0;
   raw.c_cc[VTIME] = 1;
 
-  tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1)
+    die("Failed at tcsetattr");
 
   // stdlib.h atexit will be called when the program exits
   atexit(disableRawMode);
@@ -59,11 +70,14 @@ int main(void) {
   // reads to c; press 'q' to exit
   while (1) {
     char c = '\0';
-    read(STDIN_FILENO, &c, 1);
+    if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN)
+      die("Failed to read");
     // ctype.h iscntrl tests if a character is a control character
     if (iscntrl(c)) {
+      // prints the ASCII code for control characters
       printf("%d\r\n", c);
     } else {
+      // prints the ASCII code and the character itself
       printf("%d ('%c')\r\n", c, c);
     }
     if (c == 'q') break;
