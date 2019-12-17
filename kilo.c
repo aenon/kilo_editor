@@ -9,6 +9,7 @@
 
 #include <termios.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 struct termios orig_termios;
 
@@ -20,10 +21,12 @@ void disableRawMode() {
 void enableRawMode() {
   // gets and changes terminal attributes to enable raw mode 
   tcgetattr(STDIN_FILENO, &orig_termios);
-  atexit(disableRawMode);
   struct termios raw = orig_termios;
   raw.c_lflag &= ~(ECHO);
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+
+  // stdlib.h atexit will be called when the program exits
+  atexit(disableRawMode);
 }
 
 int main(void) {
