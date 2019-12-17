@@ -10,6 +10,8 @@
 #include <termios.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <stdio.h>
 
 struct termios orig_termios;
 
@@ -34,8 +36,14 @@ int main(void) {
   enableRawMode();
 
   char c;
-  
   // reads to c; press 'q' to exit
-  while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q');
+  while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q') {
+    // ctype.h iscntrl tests if a character is a control character
+    if (iscntrl(c)) {
+      printf("%d\n", c);
+    } else {
+      printf("%d ('%c')\n", c, c);
+    }
+  }
   return 0;
 }
