@@ -10,11 +10,18 @@
 #include <termios.h>
 #include <unistd.h>
 
+struct termios orig_termios;
+
+void disableRawMode() {
+  // resets terminal attibutes to disable raw mode
+  tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+}
+
 void enableRawMode() {
-  struct termios raw;
-  // gets and sets terminal attributes
-  // to turn off echoing
-  tcgetattr(STDIN_FILENO, &raw);
+  // gets and changes terminal attributes to enable raw mode 
+  tcgetattr(STDIN_FILENO, &orig_termios);
+  atexit(disableRawMode);
+  struct termios raw = orig_termios;
   raw.c_lflag &= ~(ECHO);
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
