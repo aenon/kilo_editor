@@ -7,7 +7,11 @@
  * make && ./kilo
  */
 
+#include <unistd.h>
+
 int main(void) {
   // the starting point of the c program
+  char c;
+  while (read(STDIN_FILENO, &c, 1) == 1);
   return 0;
 }
